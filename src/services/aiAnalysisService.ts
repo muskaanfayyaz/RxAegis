@@ -6,8 +6,14 @@ export const analyzePrescriptionText = async (text: string): Promise<Prescriptio
   
   const analyses: PrescriptionAnalysis[] = [];
   
-  // Simple parsing logic
-  const lines = text.split('\n').filter(l => l.trim().length > 3);
+  // Simple parsing logic - focus on medicine lines only
+  const lines = text.split('\n').filter(l => {
+    const trimmed = l.trim();
+    // Filter out non-medicine text more aggressively
+    if (trimmed.length < 3) return false;
+    if (/^(dr|doctor|patient|name|age|date|address|phone|signature|hospital|clinic|rx)/i.test(trimmed)) return false;
+    return true;
+  });
   
   for (const line of lines) {
     const analysis: PrescriptionAnalysis = {

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Camera, Upload, FileImage } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import logo from '@/assets/rxaegis-logo.png';
 
 interface ImageCaptureProps {
   onImageCapture: (file: File, type: 'prescription' | 'barcode' | 'product') => void;
@@ -32,9 +33,15 @@ export const ImageCapture = ({ onImageCapture, isProcessing }: ImageCaptureProps
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold text-foreground">Medicine Verification System</h1>
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <img src={logo} alt="RxAegis Logo" className="h-24 w-auto" />
+        </div>
+        <h1 className="text-4xl font-bold text-foreground">RxAegis</h1>
         <p className="text-muted-foreground text-lg">
+          Medicine Verification & Authentication System
+        </p>
+        <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
           Upload or scan prescriptions, barcodes, or medicine images for authenticity verification
         </p>
       </div>

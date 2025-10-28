@@ -1,18 +1,25 @@
-import { BrowserMultiFormatReader } from '@zxing/library';
+import { BrowserMultiFormatReader, DecodeHintType } from '@zxing/library';
 
 export const detectBarcode = async (imageData: string): Promise<string | null> => {
   try {
     const codeReader = new BrowserMultiFormatReader();
     
-    // Convert data URL to blob
-    const response = await fetch(imageData);
-    const blob = await response.blob();
+    // Set hints for better barcode detection
+    const hints = new Map();
+    hints.set(DecodeHintType.TRY_HARDER, true);
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, []);
     
-    // Create an image bitmap
-    const imageBitmap = await createImageBitmap(blob);
+    // Convert data URL to an img element
+    const img = new Image();
+    img.src = imageData;
     
-    // Detect barcode
-    const result = await codeReader.decodeFromImageElement(imageBitmap as any);
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+    
+    // Detect barcode from image element
+    const result = await codeReader.decodeFromImageElement(img);
     
     if (result) {
       console.log('Barcode detected:', result.getText());

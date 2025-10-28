@@ -29,18 +29,32 @@ export const parseTextForMedicines = (text: string): string[] => {
   const cleanText = text.replace(/[^\w\s.-]/g, ' ').trim();
   
   // Common medicine patterns
-  const lines = cleanText.split('\n').filter(line => line.trim().length > 0);
+  const lines = cleanText.split('\n').filter(line => line.trim().length > 2);
   
-  // Look for medicine-like patterns (capitalized words, dosage patterns)
-  const medicinePatterns = lines.filter(line => {
-    // Check if line contains typical medicine indicators
-    return (
-      /\d+\s*(mg|ml|g|mcg)/i.test(line) || // dosage
-      /tab|cap|syrup|injection|cream/i.test(line) || // form
-      /once|twice|thrice|daily|bd|td|qd/i.test(line) || // frequency
-      /^[A-Z][a-z]+/.test(line.trim()) // Capitalized word
-    );
-  });
+  // Medicine name patterns - more strict filtering
+  const medicineLines: string[] = [];
+  
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    
+    // Skip common non-medicine text
+    if (/^(dr|doctor|patient|name|age|date|address|phone|signature|hospital|clinic)/i.test(trimmedLine)) {
+      continue;
+    }
+    
+    // Must have at least one medicine indicator
+    const hasDosage = /\d+\s*(mg|ml|g|mcg|gm)/i.test(trimmedLine);
+    const hasForm = /\b(tab|tablet|cap|capsule|syrup|injection|cream|ointment|drops|suspension)\b/i.test(trimmedLine);
+    const hasFrequency = /\b(once|twice|thrice|daily|bd|td|qd|od|tid|qid|hs|prn)\b/i.test(trimmedLine);
+    const hasCapitalizedDrugName = /^[A-Z][a-z]{2,}(?:[A-Z][a-z]+)?/i.test(trimmedLine);
+    
+    // Line must have at least 2 medicine indicators to qualify
+    const indicators = [hasDosage, hasForm, hasFrequency, hasCapitalizedDrugName].filter(Boolean).length;
+    
+    if (indicators >= 2 || (hasDosage && hasCapitalizedDrugName)) {
+      medicineLines.push(trimmedLine);
+    }
+  }
 
-  return medicinePatterns.length > 0 ? medicinePatterns : lines.slice(0, 5);
+  return medicineLines.length > 0 ? medicineLines : [];
 };
